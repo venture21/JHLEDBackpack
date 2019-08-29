@@ -1,5 +1,5 @@
 #include <JHLEDBackpack.h>
-
+// 7-세그먼트의 디코더 테이블
 static const uint8_t numbertable[] = {
     0x3F, /* 0 */
     0x06, /* 1 */
@@ -19,28 +19,34 @@ static const uint8_t numbertable[] = {
     0x71, /* F */
 };
 
-
+// 생성자
 HT16K33::HT16K33(int address) {
-   kI2CBus = 1 ;           // Default Gen2 I2C bus for Jetson TK1, J3A1:18 & J3A1:20
-   kI2CAddress = address ; // Defaults to 0x70 for HT16K33 ; jumper settable
+   kI2CBus = 1 ;           // 현재 설정된 I2C채널
+   kI2CAddress = address ; // HT16K33의 디폴트 ID값은 0x70이다. 점퍼로 셋팅 가능.
    error = 0 ;
    position = 0 ;
 }
 
+// 소멸자
 HT16K33::~HT16K33() {
    closeHT16K33() ;
 }
 
+// HT16K33장치를 열었을 때 초기화 처리를 위한 함수
 bool HT16K33::openHT16K33()
 {
    char fileNameBuffer[32];
    sprintf(fileNameBuffer,"/dev/i2c-%d", kI2CBus);
+
+   // KI2CBus로 설정된 I2C채널을 장치를 연다.
    kI2CFileDescriptor = open(fileNameBuffer, O_RDWR);
+   // open 실패시 예외처리
    if (kI2CFileDescriptor < 0) {
        // Could not open the file
       error = errno ;
       return false ;
    }
+   // 슬레이브 디바이스의 장치 어드레스는 KI2CAddress값이다. 헤더파일에서 0x70으로 설정되어 있다.
    if (ioctl(kI2CFileDescriptor, I2C_SLAVE, kI2CAddress) < 0) {
        // Could not open the device on the bus
        error = errno ;
@@ -49,6 +55,7 @@ bool HT16K33::openHT16K33()
    return true ;
 }
 
+// HT16K33의 장치를 닫을 때 처리를 위한 함수
 void HT16K33::closeHT16K33()
 {
    if (kI2CFileDescriptor > 0) {
@@ -58,7 +65,7 @@ void HT16K33::closeHT16K33()
    }
 }
 
-
+// i2c write동작을 처리하기 위한 함수
 int HT16K33::i2cwrite(int writeValue) {
     // printf("Wrote: 0x%02X  \n",writeValue) ;
     int toReturn = i2c_smbus_write_byte(kI2CFileDescriptor, writeValue);
@@ -71,6 +78,7 @@ int HT16K33::i2cwrite(int writeValue) {
 
 }
 
+// 
 void HT16K33::setBrightness(uint8_t b) {
   if (b > 15) b = 15;
   i2cwrite(HT16K33_CMD_BRIGHTNESS | b);
