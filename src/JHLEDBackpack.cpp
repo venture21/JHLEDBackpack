@@ -78,16 +78,20 @@ int HT16K33::i2cwrite(int writeValue) {
 
 }
 
-// 
+// HT16K33 데이터쉬트 15페이지 
+// Digital Dimming Data Input내용 참조
+// HT16K33_CMD_BRIGHTNESS은 
+// 헤더파일에서 0xE0로 설정되어 있다.
 void HT16K33::setBrightness(uint8_t b) {
   if (b > 15) b = 15;
   i2cwrite(HT16K33_CMD_BRIGHTNESS | b);
 }
 
+// HT16K33 데이터쉬트 15페이지 
+// Display Setup Register내용 참조
 void HT16K33::blinkRate(uint8_t b) {
    if (b > 3) b = 0; // turn off if not sure
-
-  i2cwrite(HT16K33_BLINK_CMD | HT16K33_BLINK_DISPLAYON | (b << 1));
+   i2cwrite(HT16K33_BLINK_CMD | HT16K33_BLINK_DISPLAYON | (b << 1));
 }
 
 
