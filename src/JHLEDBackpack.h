@@ -37,6 +37,10 @@ SOFTWARE.
 #include <errno.h>
 #include <stdint.h>
 
+extern "C" {
+#include <i2c/smbus.h>
+}
+
 #define HT16K33_BLINK_CMD 0x80
 #define HT16K33_BLINK_DISPLAYON 0x01
 #define HT16K33_BLINK_OFF 0
